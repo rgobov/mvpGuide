@@ -1,47 +1,39 @@
 package gobov.roma.mvpguide.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String email;  // Опционально для зарегистрированных
+    @Column(nullable = false, unique = true)
+    private String email;
 
+    @Column(nullable = false)
     private String username;
 
     @Column(name = "password_hash")
-    private String passwordHash;  // Только для зарегистрированных
+    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    private UserType type = UserType.GUEST;  // GUEST или REGISTERED
+    @Column(nullable = false)
+    private Role role;
 
-    @ElementCollection
-    private List<String> interests;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Favorite> favorites;
-
-    // Добавлено поле для языка
-    @Column(name = "language")
     private String language;
 
-    public enum UserType {
-        GUEST, REGISTERED
+    @ElementCollection
+    @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "interest")
+    private List<String> interests;
+
+    public enum Role {
+        AUTHORIZED, UNAUTHORIZED
     }
 }
