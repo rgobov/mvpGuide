@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "routes")
@@ -38,18 +39,32 @@ public class Route {
     @Column(name = "category")
     private List<String> categories;
 
+    @ElementCollection
+    @CollectionTable(name = "route_environment_types", joinColumns = @JoinColumn(name = "route_id"))
+    @Column(name = "environment_type")
+    @Enumerated(EnumType.STRING)
+    private Set<EnvironmentType> environmentTypes; // Может быть OUTDOOR, INDOOR или их комбинация
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String type; // "outdoor" или "indoor"
+    private TourFormat tourFormat; // Формат тура: SELF_GUIDED или GUIDED
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    // Добавлено отношение OneToMany с PointOfInterest
     @OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
     private List<PointOfInterest> points;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+
+    public enum EnvironmentType {
+        OUTDOOR, INDOOR
+    }
+
+    public enum TourFormat {
+        SELF_GUIDED, GUIDED
     }
 }

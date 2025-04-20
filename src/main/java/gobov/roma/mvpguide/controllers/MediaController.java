@@ -1,6 +1,8 @@
 package gobov.roma.mvpguide.controllers;
 
 import gobov.roma.mvpguide.model.Media;
+import gobov.roma.mvpguide.model.User;
+import gobov.roma.mvpguide.security.UserContextHolder;
 import gobov.roma.mvpguide.services.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,13 @@ public class MediaController {
             @RequestParam("file") MultipartFile file,
             @RequestParam Long poiId,
             @RequestParam String type) {
+        User currentUser = UserContextHolder.getContext().getUser();
+
+        // Загрузка медиа доступна только авторизованным пользователям
+        if (currentUser.getRole() != User.Role.AUTHORIZED) {
+            return ResponseEntity.status(403).build();
+        }
+
         Media media = mediaService.uploadMedia(poiId, file, type);
         return ResponseEntity.ok(media);
     }

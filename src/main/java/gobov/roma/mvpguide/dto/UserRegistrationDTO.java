@@ -15,4 +15,6 @@ public class UserRegistrationDTO {
 
     @NotBlank(message = "Username is required")
     private String username;
+
+    private String language; // Добавляем поле language
 }
